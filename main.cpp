@@ -32,6 +32,8 @@ int main()
     mRes = extractFeatures.cvCOL_Features(imGray, imBinary);
     unsigned int nCols = imBinary.cols;
 
+    cout << imBinary.size() << endl;
+
 //    for (i=0;i <nCols ;i++){
 //        for (j=0;j<8;j++){
 //            cout << mRes[i][j] << " ";
@@ -39,12 +41,10 @@ int main()
 //        cout << endl;
 //    }
 //
-//	namedWindow("Output", WINDOW_AUTOSIZE);
-//	imshow("Output", imBinary);
+	namedWindow("Output", WINDOW_AUTOSIZE);
+	imshow("Output", imBinary);
 //	imshow("Output", imGray);
-//	waitKey(0);
-
-//    cout << imBinary.size() << endl;
+	waitKey(0);
 
 	return 0;
 }

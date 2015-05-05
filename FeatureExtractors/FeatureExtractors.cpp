@@ -78,6 +78,8 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
 			unsigned int lastPixel = 0;
 			//flag = 0 until no black pixel found
 			int	pixelFlag = 0;
+			//count the number of black pixel (feature 5)
+			unsigned int nbForegroundPixel = 0;
 			int	sumEdgePixels[nRows];
 			int storRwColOfEdgePixels[nRows][2];
 
@@ -94,6 +96,7 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
 					    if (lastPixel == 0){
                             backToInkPixel++;
 					    }
+					    nbForegroundPixel++;
 //						storBottomIndex[getCol][0] = getRwPixels; // storing the row
 //						storBottomIndex[getCol][1] = getCol; // storing the col
 //						storBottomIndex[getCol][1] = sqrt((getRwPixels-nRows)^2); // storing the col
@@ -104,6 +107,7 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
 					    //store the last bot pixel
 					    botPixel = getRwPixels;
 					    backToInkPixel++;
+					    nbForegroundPixel++;
 						pixelFlag = 1;
 					}
 					sumEdgePixels[getRwPixels] =
@@ -142,22 +146,17 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
             myArrSum = 0;
             for (unsigned int calcSum = 0;calcSum<nRows;calcSum++)
                 myArrSum = myArrSum + sumEdgePixels[calcSum];
-            storFeatureMat[getCol][0] = myArrSum/nRows; // projection profile
-            storFeatureMat[getCol][1] = backToInkPixel;
+            storFeatureMat[getCol][0] = myArrSum/nRows; // projection profile (feature 1)
+            storFeatureMat[getCol][1] = backToInkPixel; // background to ink transition (feature 2)
             //storFeatureMat[getCol][2] = storTopIndex[getCol][2]/nRows;// storing the upper profile; as we are calculating the
 //				storFeatureMat[getCol][3] = storBottomIndex[getCol][2]/nRows; // storing the lower profile;as we are calculating the
-            storFeatureMat[getCol][3] = botPixel;
-            storFeatureMat[getCol][4] = ( storBottomIndex[getCol][2] - storTopIndex[getCol][2] )/nRows;
+            storFeatureMat[getCol][3] = botPixel; // bottom pixel (feature 4)
+//            storFeatureMat[getCol][4] = ( storBottomIndex[getCol][2] - storTopIndex[getCol][2] )/nRows;
+            storFeatureMat[getCol][4] = nbForegroundPixel; // number of foreground pixels (feature 5)
             storFeatureMat[getCol][5] = calTransition / 10;
             storFeatureMat[getCol][6] = cgOfRw/nRows;
 
-            cout << storFeatureMat[getCol][2] << " " << botPixel << " " << backToInkPixel << endl;
-
-
-            //show feature 0 to 6 in the output, to check if values are OK
-//				cout << myArrSum/nRows << " " << nEdgePixels/nRows << " " << storFeatureMat[getCol][2]/nRows << " " << storBottomIndex[getCol][2]/nRows << " ";
-//				cout << ( storBottomIndex[getCol][2] - storTopIndex[getCol][2] )/nRows << " " << calTransition / 10 << " " << cgOfRw/nRows;
-//				cout << endl;
+            cout << storFeatureMat[getCol][2] << " " << botPixel << " " << backToInkPixel << " " << nbForegroundPixel << endl;
 		}
 		for (unsigned int ii = 0;ii<foreGroundColCnt;ii++){
 			if(ii > 0){
