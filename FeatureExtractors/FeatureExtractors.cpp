@@ -66,22 +66,27 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img)
 		unsigned int foreGroundColCnt = 0;
 		for (unsigned int getCol = 0;getCol<nCols;getCol++)
             {
-			//store the position of the last bottom pixel found
+			//summation of the value of all pixel (for gray matrix), it will be used to calculate the projection profile (used for feature 1)
+			unsigned int sumValueGrayPixel = 0;
+			//store the position of the last bottom pixel found (used for feature 4)
 			unsigned int botPixel = 0;
-			//store the number of background to ink pixels (feature 2)
+			//store the number of background to ink pixels (used for feature 2)
 			unsigned int backToInkPixel = 0;
 			unsigned int lastPixel = 0;
-			//flag = 0 until no black pixel found
+			//flag = 0 until no black pixel found (used for feature 3)
 			int	pixelFlag = 0;
-			//count the number of black pixel (feature 5)
+			//count the number of black pixel (used for feature 5)
 			unsigned int nbForegroundPixel = 0;
-			//summation of black pixels position
+			//summation of black pixels position (used for feature 6)
 			unsigned int sumForegroundPixel = 0;
 
 			for (unsigned int getRwPixels = 0;getRwPixels<nRows;getRwPixels++)
                 { // starting from minimum row to maximum row, sum all pixels in between them
                 //this is the test to store the first foreground pixel and it will also used to store the last foreground pixel
-                //the type of values inside the matrix is unsigned int8_t
+                //the type of values inside the matrix is unsigned int8_t (0 to 255 value)
+                // gray matrix part
+                sumValueGrayPixel += matGrey_img.at<unsigned int8_t>(getRwPixels,getCol);
+                // binary matrix part
                     if(matBin_img.at<unsigned int8_t>(getRwPixels,getCol) == 255)
                     { // in opencv, fore ground pixels are 255 and back ground pixels are 0
                         if(pixelFlag == 1)
@@ -111,32 +116,35 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img)
 				lastPixel = matBin_img.at<unsigned int8_t>(getRwPixels,getCol);
 				}
             // Binary level features
-            storFeatureMat[getCol][0] = botPixel/nRows; // projection profile (feature 1)
+            storFeatureMat[getCol][0] = sumValueGrayPixel/nRows; // projection profile (feature 1)
             storFeatureMat[getCol][1] = backToInkPixel; // background to ink transition (feature 2)
             storFeatureMat[getCol][3] = botPixel; // bottom pixel (feature 4)
             storFeatureMat[getCol][4] = storFeatureMat[getCol][3] - storFeatureMat[getCol][2]; // distance between upper and lower profile (feature 5)
             storFeatureMat[getCol][5] = nbForegroundPixel; // number of foreground pixels (feature 6)
             storFeatureMat[getCol][6] = sumForegroundPixel/nbForegroundPixel; // gravity center of the column (feature 7)
 
-            cout << storFeatureMat[getCol][2] << " " << botPixel << " " << backToInkPixel << " " << nbForegroundPixel << " "
+            cout << storFeatureMat[getCol][0] << " " << storFeatureMat[getCol][2] << " "
+            << botPixel << " " << backToInkPixel << " " << nbForegroundPixel << " "
             << storFeatureMat[getCol][4] << " " << storFeatureMat[getCol][6] << endl;
 		}
+
+		//calculation of feature 8
 		for (unsigned int ii = 0;ii<foreGroundColCnt;ii++)
+        {
+            if(ii > 0)
             {
-                if(ii > 0)
-                {
-                    if(  ((matBin_img.at<unsigned int8_t>(  (storForeGroundCGforCol[ii][0]),(storForeGroundCGforCol[ii][1])  ) == 0) &&
-                            (matBin_img.at<unsigned int8_t>(  (storForeGroundCGforCol[ii-1][0]),(storForeGroundCGforCol[ii-1][1]) == 255)) )  ||
-                            ( (matBin_img.at<unsigned int8_t>( (storForeGroundCGforCol[ii][0]),(storForeGroundCGforCol[ii][1]) ) == 255) &&
-                                    (matBin_img.at<unsigned int8_t>( (storForeGroundCGforCol[ii-1][0]),(storForeGroundCGforCol[ii-1][1]) ) == 0) ) ){
-                        storFeatureMat[(storForeGroundCGforCol[ii][1])][7] = 1; // storing the transition of the CG of each foreground pixels in the column
-                    }
-                    else
-                    {
-                        storFeatureMat[(storForeGroundCGforCol[ii][1])][7] = 0; // if there is no transition but this column have foreground pixel
-                    }
+                if(  ((matBin_img.at<unsigned int8_t>(  (storForeGroundCGforCol[ii][0]),(storForeGroundCGforCol[ii][1])  ) == 0) &&
+                        (matBin_img.at<unsigned int8_t>(  (storForeGroundCGforCol[ii-1][0]),(storForeGroundCGforCol[ii-1][1]) == 255)) )  ||
+                        ( (matBin_img.at<unsigned int8_t>( (storForeGroundCGforCol[ii][0]),(storForeGroundCGforCol[ii][1]) ) == 255) &&
+                                (matBin_img.at<unsigned int8_t>( (storForeGroundCGforCol[ii-1][0]),(storForeGroundCGforCol[ii-1][1]) ) == 0) ) ){
+                    storFeatureMat[(storForeGroundCGforCol[ii][1])][7] = 1; // storing the transition of the CG of each foreground pixels in the column
                 }
-		}
+                else
+                {
+                    storFeatureMat[(storForeGroundCGforCol[ii][1])][7] = 0; // if there is no transition but this column have foreground pixel
+                }
+            }
+        }
 
 		// For spline interpolation; get the indexes where storFeatureMat is non zero
 //		std::vector<int> non0Rw,x_inter;
@@ -446,11 +454,6 @@ double interpolate(Mat X, Mat Y, int targetX)
 //    mexErrMsgTxt("Wrong number of outputs");
 //  plhs[0] = process(prhs[0], prhs[1]);
 //}
-
-
-
-
-
 
 vector<float> FeatureExtractors::cvHOG_Features(IplImage* src_img){
 	HOGDescriptor hog; // Use standard parameters here

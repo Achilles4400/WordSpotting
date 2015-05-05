@@ -193,7 +193,7 @@
 1384339464 c:\opencv\build\include\opencv2\nonfree\features2d.hpp
 	"opencv2/features2d/features2d.hpp"
 
-1430832255 source:e:\projet\science_de_la_decision\wordspotting\featureextractors\featureextractors.cpp
+1430845249 source:e:\projet\science_de_la_decision\wordspotting\featureextractors\featureextractors.cpp
 	"hdr/FeatureExtractors.h"
 	<math.h>
 
