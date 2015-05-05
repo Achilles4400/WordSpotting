@@ -13,7 +13,7 @@ int main()
     int j;
     FeatureExtractors extractFeatures;
 
-    Mat image = imread("D:\\langage c\\ScienceDeLaDecision\\images\\5744.jpg", CV_LOAD_IMAGE_COLOR);
+    Mat image = imread("E:\\projet\\Science_de_la_decision\\WordSpotting\\images\\5744.jpg", CV_LOAD_IMAGE_COLOR);
     if(!image.data)
 	{
 		cout<<"Image loading problem!"<<endl;
@@ -38,11 +38,13 @@ int main()
 //        }
 //        cout << endl;
 //    }
+//
+//	namedWindow("Output", WINDOW_AUTOSIZE);
+//	imshow("Output", imBinary);
+//	imshow("Output", imGray);
+//	waitKey(0);
 
-	namedWindow("Output", WINDOW_AUTOSIZE);
-	imshow("Output", imBinary);
-	//imshow("Output", imGray);
-	waitKey(0);
+//    cout << imBinary.size() << endl;
 
 	return 0;
 }

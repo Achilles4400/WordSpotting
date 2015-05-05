@@ -71,6 +71,7 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
 		for (unsigned int getCol = 0;getCol<nCols;getCol++){
 			int	calTransition = 0;
 			unsigned int nEdgePixels = 0;
+			int botPixel = 0;
 			int	pixelFlag = 0;
 			int	sumEdgePixels[nRows];
 			int storRwColOfEdgePixels[nRows][2];
@@ -84,20 +85,24 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
                 //the type of values inside the matrix is unsigned int8_t
 				if(matBin_img.at<unsigned int8_t>(getRwPixels,getCol) == 255){ // in opencv, fore ground pixels are 255 and back ground pixels are 0
 					if(pixelFlag == 0){
-					    //setting up the upper profile (feature 3)
+					    //setting up the upper profile (feature 3) the first foreground pixel is stored
 
 					    storFeatureMat[getCol][2] = getRwPixels;
-
+					    //store the last bot pixel
+					    botPixel = getRwPixels;
+//
 //						storTopIndex[getCol][0] = getRwPixels; // storing the row
 //						storTopIndex[getCol][1] = getCol; // storing the col
 //						storTopIndex[getCol][1] = sqrt((getRwPixels-0)^2); // storing the col
 						pixelFlag = 1;
 					}
 					else if(pixelFlag == 1){
-					    //setting up the lower profile (feature 4) the la foreground is stored
-						storBottomIndex[getCol][0] = getRwPixels; // storing the row
-						storBottomIndex[getCol][1] = getCol; // storing the col
-						storBottomIndex[getCol][1] = sqrt((getRwPixels-nRows)^2); // storing the col
+					    //setting up the lower profile (feature 4) the last foreground is stored
+					    botPixel = getRwPixels;
+//
+//						storBottomIndex[getCol][0] = getRwPixels; // storing the row
+//						storBottomIndex[getCol][1] = getCol; // storing the col
+//						storBottomIndex[getCol][1] = sqrt((getRwPixels-nRows)^2); // storing the col
 					}
 					sumEdgePixels[getRwPixels] =
 							(255 - (matGrey_img.at<unsigned int8_t>(getRwPixels,getCol) )); // for edge pixels only, store the grey values
@@ -112,40 +117,42 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
 					}
 				}
 			}
-			if(nEdgePixels == 1) {// If only one pixel exists in the column, then bottom pixel will also be same as top pixel
-				storBottomIndex[getCol][0] = storTopIndex[getCol][0];
-				storBottomIndex[getCol][1] = storTopIndex[getCol][1];
-				storBottomIndex[getCol][2] = sqrt((storTopIndex[getCol][0]-nRows)^2);
-			}
-			if(nEdgePixels > 0){
-				int myArrSum = 0;
-				for (unsigned int calcSum = 0;calcSum<nEdgePixels;calcSum++)
-					myArrSum = myArrSum + storRwColOfEdgePixels[calcSum][0];
-				int cgOfRw = myArrSum/nEdgePixels;
-				int cgOfCol = storRwColOfEdgePixels[0][1];
-				foreGroundColCnt = foreGroundColCnt +1;
 
-				storForeGroundCGforCol[foreGroundColCnt][0] = round(cgOfRw);
-				storForeGroundCGforCol[foreGroundColCnt][1] = round(cgOfCol);
-				storForeGroundCGforCol[foreGroundColCnt][2] = getCol;
-				// Binary level features
-				myArrSum = 0;
-				for (unsigned int calcSum = 0;calcSum<nRows;calcSum++)
-					myArrSum = myArrSum + sumEdgePixels[calcSum];
-				storFeatureMat[getCol][0] = myArrSum/nRows;
-				storFeatureMat[getCol][1] = nEdgePixels/nRows; // projection profile
-				//storFeatureMat[getCol][2] = storTopIndex[getCol][2]/nRows;// storing the upper profile; as we are calculating the
-				storFeatureMat[getCol][3] = storBottomIndex[getCol][2]/nRows; // storing the lower profile;as we are calculating the
-				storFeatureMat[getCol][4] = ( storBottomIndex[getCol][2] - storTopIndex[getCol][2] )/nRows;
-				storFeatureMat[getCol][5] = calTransition / 10;
-				storFeatureMat[getCol][6] = cgOfRw/nRows;
+//			if(nEdgePixels == 1) {// If only one pixel exists in the column, then bottom pixel will also be same as top pixel
+//				storBottomIndex[getCol][0] = storTopIndex[getCol][0];
+//				storBottomIndex[getCol][1] = storTopIndex[getCol][1];
+//				storBottomIndex[getCol][2] = sqrt((storTopIndex[getCol][0]-nRows)^2);
+//			}
+            int myArrSum = 0;
+            for (unsigned int calcSum = 0;calcSum<nEdgePixels;calcSum++)
+                myArrSum = myArrSum + storRwColOfEdgePixels[calcSum][0];
+            int cgOfRw = myArrSum/nEdgePixels;
+            int cgOfCol = storRwColOfEdgePixels[0][1];
+            foreGroundColCnt = foreGroundColCnt +1;
+
+            storForeGroundCGforCol[foreGroundColCnt][0] = round(cgOfRw);
+            storForeGroundCGforCol[foreGroundColCnt][1] = round(cgOfCol);
+            storForeGroundCGforCol[foreGroundColCnt][2] = getCol;
+            // Binary level features
+            myArrSum = 0;
+            for (unsigned int calcSum = 0;calcSum<nRows;calcSum++)
+                myArrSum = myArrSum + sumEdgePixels[calcSum];
+            storFeatureMat[getCol][0] = myArrSum/nRows;
+            storFeatureMat[getCol][1] = nEdgePixels/nRows; // projection profile
+            //storFeatureMat[getCol][2] = storTopIndex[getCol][2]/nRows;// storing the upper profile; as we are calculating the
+//				storFeatureMat[getCol][3] = storBottomIndex[getCol][2]/nRows; // storing the lower profile;as we are calculating the
+            storFeatureMat[getCol][3] = botPixel;
+            storFeatureMat[getCol][4] = ( storBottomIndex[getCol][2] - storTopIndex[getCol][2] )/nRows;
+            storFeatureMat[getCol][5] = calTransition / 10;
+            storFeatureMat[getCol][6] = cgOfRw/nRows;
+
+            cout << storFeatureMat[getCol][2] << " " << botPixel << endl;
 
 
-                //show feature 0 to 6 in the output, to check if values are OK
+            //show feature 0 to 6 in the output, to check if values are OK
 //				cout << myArrSum/nRows << " " << nEdgePixels/nRows << " " << storFeatureMat[getCol][2]/nRows << " " << storBottomIndex[getCol][2]/nRows << " ";
 //				cout << ( storBottomIndex[getCol][2] - storTopIndex[getCol][2] )/nRows << " " << calTransition / 10 << " " << cgOfRw/nRows;
 //				cout << endl;
-			}
 		}
 		for (unsigned int ii = 0;ii<foreGroundColCnt;ii++){
 			if(ii > 0){

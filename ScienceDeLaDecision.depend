@@ -28,11 +28,11 @@
 	<set>
 	<iterator>
 
-1407680590 c:\opencv\build\include\opencv2\imgproc\imgproc.hpp
+1407676990 c:\opencv\build\include\opencv2\imgproc\imgproc.hpp
 	"opencv2/core/core.hpp"
 	"opencv2/imgproc/types_c.h"
 
-1407680590 c:\opencv\build\include\opencv2\core\core.hpp
+1407676990 c:\opencv\build\include\opencv2\core\core.hpp
 	"opencv2/core/types_c.h"
 	"opencv2/core/version.hpp"
 	<limits.h>
@@ -48,7 +48,7 @@
 	"opencv2/core/operations.hpp"
 	"opencv2/core/mat.hpp"
 
-1404648120 c:\opencv\build\include\opencv2\core\types_c.h
+1404644520 c:\opencv\build\include\opencv2\core\types_c.h
 	<assert.h>
 	<stdlib.h>
 	<string.h>
@@ -63,23 +63,23 @@
 	"tegra_round.hpp"
 	"emmintrin.h"
 
-1411282890 c:\opencv\build\include\opencv2\core\version.hpp
+1411279290 c:\opencv\build\include\opencv2\core\version.hpp
 
-1411887606 c:\opencv\build\include\opencv2\core\operations.hpp
+1411884006 c:\opencv\build\include\opencv2\core\operations.hpp
 	<string.h>
 	<limits.h>
 	<ext/atomicity.h>
 	<bits/atomicity.h>
 	<limits>
 
-1407680590 c:\opencv\build\include\opencv2\core\mat.hpp
+1407676990 c:\opencv\build\include\opencv2\core\mat.hpp
 	<limits.h>
 	<string.h>
 
 1384339464 c:\opencv\build\include\opencv2\imgproc\types_c.h
 	"opencv2/core/core_c.h"
 
-1407680590 c:\opencv\build\include\opencv2\core\core_c.h
+1407676990 c:\opencv\build\include\opencv2\core\core_c.h
 	"opencv2/core/types_c.h"
 
 1384339462 c:\opencv\build\include\opencv\highgui.h
@@ -144,7 +144,7 @@
 	"opencv2/core/core.hpp"
 	<list>
 
-1403425666 c:\opencv\build\include\opencv2\features2d\features2d.hpp
+1403422066 c:\opencv\build\include\opencv2\features2d\features2d.hpp
 	"opencv2/core/core.hpp"
 	"opencv2/flann/miniflann.hpp"
 	<limits>
@@ -154,7 +154,7 @@
 	<map>
 	<deque>
 
-1402812816 c:\opencv\build\include\opencv2\calib3d\calib3d.hpp
+1402809216 c:\opencv\build\include\opencv2\calib3d\calib3d.hpp
 	"opencv2/core/core.hpp"
 	"opencv2/features2d/features2d.hpp"
 	"opencv2/core/affine.hpp"
@@ -169,7 +169,7 @@
 	<string>
 	<iostream>
 
-1402812816 c:\opencv\build\include\opencv2\contrib\contrib.hpp
+1402809216 c:\opencv\build\include\opencv2\contrib\contrib.hpp
 	"opencv2/core/core.hpp"
 	"opencv2/imgproc/imgproc.hpp"
 	"opencv2/features2d/features2d.hpp"
@@ -192,4 +192,33 @@
 
 1384339464 c:\opencv\build\include\opencv2\nonfree\features2d.hpp
 	"opencv2/features2d/features2d.hpp"
+
+1430829711 source:e:\projet\science_de_la_decision\wordspotting\featureextractors\featureextractors.cpp
+	"hdr/FeatureExtractors.h"
+	<math.h>
+
+1430828243 e:\projet\science_de_la_decision\wordspotting\featureextractors\hdr\featureextractors.h
+	<opencv2/imgproc/imgproc.hpp>
+	<opencv/highgui.h>
+	<opencv2/opencv.hpp>
+	<opencv2/highgui/highgui.hpp>
+	<opencv2/core/core.hpp>
+	<opencv2/features2d/features2d.hpp>
+	"opencv2/nonfree/features2d.hpp"
+	<vector>
+	<iostream>
+	<fstream>
+	<stdio.h>
+	<string>
+	<stdlib.h>
+	<algorithm>
+	<set>
+	<iterator>
+
+1430829061 source:e:\projet\science_de_la_decision\wordspotting\main.cpp
+	<iostream>
+	<opencv2/highgui/highgui.hpp>
+	<opencv2/core/core.hpp>
+	<opencv2/imgproc/imgproc.hpp>
+	"FeatureExtractors/hdr/FeatureExtractors.h"
 
