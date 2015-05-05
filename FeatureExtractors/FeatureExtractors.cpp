@@ -152,11 +152,11 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
 //				storFeatureMat[getCol][3] = storBottomIndex[getCol][2]/nRows; // storing the lower profile;as we are calculating the
             storFeatureMat[getCol][3] = botPixel; // bottom pixel (feature 4)
 //            storFeatureMat[getCol][4] = ( storBottomIndex[getCol][2] - storTopIndex[getCol][2] )/nRows;
-            storFeatureMat[getCol][4] = nbForegroundPixel; // number of foreground pixels (feature 5)
-            storFeatureMat[getCol][5] = calTransition / 10;
-            storFeatureMat[getCol][6] = cgOfRw/nRows;
+            storFeatureMat[getCol][4] = storFeatureMat[getCol][3] - storFeatureMat[getCol][2]; // distance between upper and lower profile (feature 5)
+            storFeatureMat[getCol][5] = nbForegroundPixel; // number of foreground pixels (feature 6)
+            storFeatureMat[getCol][6] = cgOfRw/nRows; // gravity center of the column (feature 7)
 
-            cout << storFeatureMat[getCol][2] << " " << botPixel << " " << backToInkPixel << " " << nbForegroundPixel << endl;
+            cout << storFeatureMat[getCol][2] << " " << botPixel << " " << backToInkPixel << " " << nbForegroundPixel << " " << storFeatureMat[getCol][4] << endl;
 		}
 		for (unsigned int ii = 0;ii<foreGroundColCnt;ii++){
 			if(ii > 0){
