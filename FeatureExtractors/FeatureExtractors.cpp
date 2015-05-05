@@ -80,6 +80,8 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
 			int	pixelFlag = 0;
 			//count the number of black pixel (feature 5)
 			unsigned int nbForegroundPixel = 0;
+			//summation of black pixels position
+			unsigned int sumForegroundPixel = 0;
 			int	sumEdgePixels[nRows];
 			int storRwColOfEdgePixels[nRows][2];
 
@@ -97,9 +99,7 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
                             backToInkPixel++;
 					    }
 					    nbForegroundPixel++;
-//						storBottomIndex[getCol][0] = getRwPixels; // storing the row
-//						storBottomIndex[getCol][1] = getCol; // storing the col
-//						storBottomIndex[getCol][1] = sqrt((getRwPixels-nRows)^2); // storing the col
+					    sumForegroundPixel += getRwPixels;
 					}
 					if(pixelFlag == 0){
 					    //setting up the upper profile (feature 3) the first foreground pixel is stored
@@ -108,6 +108,7 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
 					    botPixel = getRwPixels;
 					    backToInkPixel++;
 					    nbForegroundPixel++;
+					    sumForegroundPixel += getRwPixels;
 						pixelFlag = 1;
 					}
 					sumEdgePixels[getRwPixels] =
@@ -126,12 +127,6 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
 				lastPixel = matBin_img.at<unsigned int8_t>(getRwPixels,getCol);
 				}
 			}
-
-//			if(nEdgePixels == 1) {// If only one pixel exists in the column, then bottom pixel will also be same as top pixel
-//				storBottomIndex[getCol][0] = storTopIndex[getCol][0];
-//				storBottomIndex[getCol][1] = storTopIndex[getCol][1];
-//				storBottomIndex[getCol][2] = sqrt((storTopIndex[getCol][0]-nRows)^2);
-//			}
             int myArrSum = 0;
             for (unsigned int calcSum = 0;calcSum<nEdgePixels;calcSum++)
                 myArrSum = myArrSum + storRwColOfEdgePixels[calcSum][0];
@@ -148,15 +143,12 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
                 myArrSum = myArrSum + sumEdgePixels[calcSum];
             storFeatureMat[getCol][0] = myArrSum/nRows; // projection profile (feature 1)
             storFeatureMat[getCol][1] = backToInkPixel; // background to ink transition (feature 2)
-            //storFeatureMat[getCol][2] = storTopIndex[getCol][2]/nRows;// storing the upper profile; as we are calculating the
-//				storFeatureMat[getCol][3] = storBottomIndex[getCol][2]/nRows; // storing the lower profile;as we are calculating the
             storFeatureMat[getCol][3] = botPixel; // bottom pixel (feature 4)
-//            storFeatureMat[getCol][4] = ( storBottomIndex[getCol][2] - storTopIndex[getCol][2] )/nRows;
             storFeatureMat[getCol][4] = storFeatureMat[getCol][3] - storFeatureMat[getCol][2]; // distance between upper and lower profile (feature 5)
             storFeatureMat[getCol][5] = nbForegroundPixel; // number of foreground pixels (feature 6)
-            storFeatureMat[getCol][6] = cgOfRw/nRows; // gravity center of the column (feature 7)
+            storFeatureMat[getCol][6] = sumForegroundPixel/nbForegroundPixel; // gravity center of the column (feature 7)
 
-            cout << storFeatureMat[getCol][2] << " " << botPixel << " " << backToInkPixel << " " << nbForegroundPixel << " " << storFeatureMat[getCol][4] << endl;
+            cout << storFeatureMat[getCol][2] << " " << botPixel << " " << backToInkPixel << " " << nbForegroundPixel << " " << storFeatureMat[getCol][4] << " " << storFeatureMat[getCol][6] << endl;
 		}
 		for (unsigned int ii = 0;ii<foreGroundColCnt;ii++){
 			if(ii > 0){
