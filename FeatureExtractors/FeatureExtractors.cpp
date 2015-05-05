@@ -48,7 +48,8 @@ Ptr<DescriptorExtractor> FeatureExtractors::cvSIFT_Features(IplImage* src_img){
 	return featureExtractor;
 }
 
-double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
+double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img)
+{
 	unsigned int nRows = matGrey_img.rows;
 	unsigned int nCols = matBin_img.cols;
 
@@ -57,20 +58,14 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
     for(unsigned int nXIndex=0; nXIndex<nCols; nXIndex++)
         storFeatureMat[nXIndex] = new double[8]();
 
-	// Initialize topIndex  matrix
-	int storTopIndex[nCols][3];
-
-	// Initialize botIndex  matrix
-	int storBottomIndex[nCols][3];
-
 	// Initialize storForeGroundCGforCol  matrix
 	int storForeGroundCGforCol[nCols][3];
 
-	if ((!matGrey_img.empty()) && (!matBin_img.empty())){
+	if ((!matGrey_img.empty()) && (!matBin_img.empty()))
+        {
 		unsigned int foreGroundColCnt = 0;
-		for (unsigned int getCol = 0;getCol<nCols;getCol++){
-			int	calTransition = 0;
-			unsigned int nEdgePixels = 0;
+		for (unsigned int getCol = 0;getCol<nCols;getCol++)
+            {
 			//store the position of the last bottom pixel found
 			unsigned int botPixel = 0;
 			//store the number of background to ink pixels (feature 2)
@@ -82,86 +77,65 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
 			unsigned int nbForegroundPixel = 0;
 			//summation of black pixels position
 			unsigned int sumForegroundPixel = 0;
-			int	sumEdgePixels[nRows];
-			int storRwColOfEdgePixels[nRows][2];
 
-            memset(sumEdgePixels, 0, sizeof(sumEdgePixels)); // fr initializing the array by 0
-			memset(storRwColOfEdgePixels, 0, sizeof(storRwColOfEdgePixels[0][0]) * nRows * 2);
-
-			for (unsigned int getRwPixels = 0;getRwPixels<nRows;getRwPixels++){ // starting from minimum row to maximum row, sum all pixels in between them
+			for (unsigned int getRwPixels = 0;getRwPixels<nRows;getRwPixels++)
+                { // starting from minimum row to maximum row, sum all pixels in between them
                 //this is the test to store the first foreground pixel and it will also used to store the last foreground pixel
                 //the type of values inside the matrix is unsigned int8_t
-				if(matBin_img.at<unsigned int8_t>(getRwPixels,getCol) == 255){ // in opencv, fore ground pixels are 255 and back ground pixels are 0
-					if(pixelFlag == 1){
-					    //setting up the lower profile (feature 4) the last foreground is stored
-					    botPixel = getRwPixels;
-					    if (lastPixel == 0){
+                    if(matBin_img.at<unsigned int8_t>(getRwPixels,getCol) == 255)
+                    { // in opencv, fore ground pixels are 255 and back ground pixels are 0
+                        if(pixelFlag == 1)
+                        {
+                            //setting up the lower profile (feature 4) the last foreground is stored
+                            botPixel = getRwPixels;
+                            if (lastPixel == 0)
+                            {
+                                backToInkPixel++;
+                            }
+                            nbForegroundPixel++;
+                            sumForegroundPixel += getRwPixels;
+                        }
+                        if(pixelFlag == 0)
+                        {
+                            //setting up the upper profile (feature 3) the first foreground pixel is stored
+                            storFeatureMat[getCol][2] = getRwPixels;
+                            //store the last bot pixel
+                            botPixel = getRwPixels;
                             backToInkPixel++;
-					    }
-					    nbForegroundPixel++;
-					    sumForegroundPixel += getRwPixels;
-					}
-					if(pixelFlag == 0){
-					    //setting up the upper profile (feature 3) the first foreground pixel is stored
-					    storFeatureMat[getCol][2] = getRwPixels;
-					    //store the last bot pixel
-					    botPixel = getRwPixels;
-					    backToInkPixel++;
-					    nbForegroundPixel++;
-					    sumForegroundPixel += getRwPixels;
-						pixelFlag = 1;
-					}
-					sumEdgePixels[getRwPixels] =
-							(255 - (matGrey_img.at<unsigned int8_t>(getRwPixels,getCol) )); // for edge pixels only, store the grey values
-					nEdgePixels = nEdgePixels + 1;
-					storRwColOfEdgePixels[nEdgePixels][0] = getRwPixels;
-					storRwColOfEdgePixels[nEdgePixels][1] = getCol;
-				}
-				if(getRwPixels> 0){
-					if (  (matBin_img.at<unsigned int8_t>(getRwPixels,getCol)== 255) &&
-							(matBin_img.at<unsigned int8_t>(getRwPixels-1,getCol) == 0)  ){// AS WE WANT ONLY BACK GROUND TO INK TRANSITION
-						calTransition = calTransition+1;
-					}
-
+                            nbForegroundPixel++;
+                            sumForegroundPixel += getRwPixels;
+                            pixelFlag = 1;
+                        }
+                    }
 				//setting the last pixel
 				lastPixel = matBin_img.at<unsigned int8_t>(getRwPixels,getCol);
 				}
-			}
-            int myArrSum = 0;
-            for (unsigned int calcSum = 0;calcSum<nEdgePixels;calcSum++)
-                myArrSum = myArrSum + storRwColOfEdgePixels[calcSum][0];
-            int cgOfRw = myArrSum/nEdgePixels;
-            int cgOfCol = storRwColOfEdgePixels[0][1];
-            foreGroundColCnt = foreGroundColCnt +1;
-
-            storForeGroundCGforCol[foreGroundColCnt][0] = round(cgOfRw);
-            storForeGroundCGforCol[foreGroundColCnt][1] = round(cgOfCol);
-            storForeGroundCGforCol[foreGroundColCnt][2] = getCol;
             // Binary level features
-            myArrSum = 0;
-            for (unsigned int calcSum = 0;calcSum<nRows;calcSum++)
-                myArrSum = myArrSum + sumEdgePixels[calcSum];
-            storFeatureMat[getCol][0] = myArrSum/nRows; // projection profile (feature 1)
+            storFeatureMat[getCol][0] = botPixel/nRows; // projection profile (feature 1)
             storFeatureMat[getCol][1] = backToInkPixel; // background to ink transition (feature 2)
             storFeatureMat[getCol][3] = botPixel; // bottom pixel (feature 4)
             storFeatureMat[getCol][4] = storFeatureMat[getCol][3] - storFeatureMat[getCol][2]; // distance between upper and lower profile (feature 5)
             storFeatureMat[getCol][5] = nbForegroundPixel; // number of foreground pixels (feature 6)
             storFeatureMat[getCol][6] = sumForegroundPixel/nbForegroundPixel; // gravity center of the column (feature 7)
 
-            cout << storFeatureMat[getCol][2] << " " << botPixel << " " << backToInkPixel << " " << nbForegroundPixel << " " << storFeatureMat[getCol][4] << " " << storFeatureMat[getCol][6] << endl;
+            cout << storFeatureMat[getCol][2] << " " << botPixel << " " << backToInkPixel << " " << nbForegroundPixel << " "
+            << storFeatureMat[getCol][4] << " " << storFeatureMat[getCol][6] << endl;
 		}
-		for (unsigned int ii = 0;ii<foreGroundColCnt;ii++){
-			if(ii > 0){
-				if(  ((matBin_img.at<unsigned int8_t>(  (storForeGroundCGforCol[ii][0]),(storForeGroundCGforCol[ii][1])  ) == 0) &&
-						(matBin_img.at<unsigned int8_t>(  (storForeGroundCGforCol[ii-1][0]),(storForeGroundCGforCol[ii-1][1]) == 255)) )  ||
-						( (matBin_img.at<unsigned int8_t>( (storForeGroundCGforCol[ii][0]),(storForeGroundCGforCol[ii][1]) ) == 255) &&
-								(matBin_img.at<unsigned int8_t>( (storForeGroundCGforCol[ii-1][0]),(storForeGroundCGforCol[ii-1][1]) ) == 0) ) ){
-					storFeatureMat[(storForeGroundCGforCol[ii][1])][7] = 1; // storing the transition of the CG of each foreground pixels in the column
-				}
-				else{
-					storFeatureMat[(storForeGroundCGforCol[ii][1])][7] = 0; // if there is no transition but this column have foreground pixel
-				}
-			}
+		for (unsigned int ii = 0;ii<foreGroundColCnt;ii++)
+            {
+                if(ii > 0)
+                {
+                    if(  ((matBin_img.at<unsigned int8_t>(  (storForeGroundCGforCol[ii][0]),(storForeGroundCGforCol[ii][1])  ) == 0) &&
+                            (matBin_img.at<unsigned int8_t>(  (storForeGroundCGforCol[ii-1][0]),(storForeGroundCGforCol[ii-1][1]) == 255)) )  ||
+                            ( (matBin_img.at<unsigned int8_t>( (storForeGroundCGforCol[ii][0]),(storForeGroundCGforCol[ii][1]) ) == 255) &&
+                                    (matBin_img.at<unsigned int8_t>( (storForeGroundCGforCol[ii-1][0]),(storForeGroundCGforCol[ii-1][1]) ) == 0) ) ){
+                        storFeatureMat[(storForeGroundCGforCol[ii][1])][7] = 1; // storing the transition of the CG of each foreground pixels in the column
+                    }
+                    else
+                    {
+                        storFeatureMat[(storForeGroundCGforCol[ii][1])][7] = 0; // if there is no transition but this column have foreground pixel
+                    }
+                }
 		}
 
 		// For spline interpolation; get the indexes where storFeatureMat is non zero
