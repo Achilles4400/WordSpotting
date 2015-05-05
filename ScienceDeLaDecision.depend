@@ -215,7 +215,7 @@
 	<set>
 	<iterator>
 
-1430829061 source:e:\projet\science_de_la_decision\wordspotting\main.cpp
+1430830523 source:e:\projet\science_de_la_decision\wordspotting\main.cpp
 	<iostream>
 	<opencv2/highgui/highgui.hpp>
 	<opencv2/core/core.hpp>

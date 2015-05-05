@@ -71,7 +71,12 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
 		for (unsigned int getCol = 0;getCol<nCols;getCol++){
 			int	calTransition = 0;
 			unsigned int nEdgePixels = 0;
-			int botPixel = 0;
+			//store the position of the last bottom pixel found
+			unsigned int botPixel = 0;
+			//store the number of background to ink pixels (feature 2)
+			unsigned int backToInkPixel = 0;
+			unsigned int lastPixel = 0;
+			//flag = 0 until no black pixel found
 			int	pixelFlag = 0;
 			int	sumEdgePixels[nRows];
 			int storRwColOfEdgePixels[nRows][2];
@@ -80,29 +85,26 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
 			memset(storRwColOfEdgePixels, 0, sizeof(storRwColOfEdgePixels[0][0]) * nRows * 2);
 
 			for (unsigned int getRwPixels = 0;getRwPixels<nRows;getRwPixels++){ // starting from minimum row to maximum row, sum all pixels in between them
-
                 //this is the test to store the first foreground pixel and it will also used to store the last foreground pixel
                 //the type of values inside the matrix is unsigned int8_t
 				if(matBin_img.at<unsigned int8_t>(getRwPixels,getCol) == 255){ // in opencv, fore ground pixels are 255 and back ground pixels are 0
-					if(pixelFlag == 0){
-					    //setting up the upper profile (feature 3) the first foreground pixel is stored
-
-					    storFeatureMat[getCol][2] = getRwPixels;
-					    //store the last bot pixel
-					    botPixel = getRwPixels;
-//
-//						storTopIndex[getCol][0] = getRwPixels; // storing the row
-//						storTopIndex[getCol][1] = getCol; // storing the col
-//						storTopIndex[getCol][1] = sqrt((getRwPixels-0)^2); // storing the col
-						pixelFlag = 1;
-					}
-					else if(pixelFlag == 1){
+					if(pixelFlag == 1){
 					    //setting up the lower profile (feature 4) the last foreground is stored
 					    botPixel = getRwPixels;
-//
+					    if (lastPixel == 0){
+                            backToInkPixel++;
+					    }
 //						storBottomIndex[getCol][0] = getRwPixels; // storing the row
 //						storBottomIndex[getCol][1] = getCol; // storing the col
 //						storBottomIndex[getCol][1] = sqrt((getRwPixels-nRows)^2); // storing the col
+					}
+					if(pixelFlag == 0){
+					    //setting up the upper profile (feature 3) the first foreground pixel is stored
+					    storFeatureMat[getCol][2] = getRwPixels;
+					    //store the last bot pixel
+					    botPixel = getRwPixels;
+					    backToInkPixel++;
+						pixelFlag = 1;
 					}
 					sumEdgePixels[getRwPixels] =
 							(255 - (matGrey_img.at<unsigned int8_t>(getRwPixels,getCol) )); // for edge pixels only, store the grey values
@@ -115,6 +117,9 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
 							(matBin_img.at<unsigned int8_t>(getRwPixels-1,getCol) == 0)  ){// AS WE WANT ONLY BACK GROUND TO INK TRANSITION
 						calTransition = calTransition+1;
 					}
+
+				//setting the last pixel
+				lastPixel = matBin_img.at<unsigned int8_t>(getRwPixels,getCol);
 				}
 			}
 
@@ -137,8 +142,8 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
             myArrSum = 0;
             for (unsigned int calcSum = 0;calcSum<nRows;calcSum++)
                 myArrSum = myArrSum + sumEdgePixels[calcSum];
-            storFeatureMat[getCol][0] = myArrSum/nRows;
-            storFeatureMat[getCol][1] = nEdgePixels/nRows; // projection profile
+            storFeatureMat[getCol][0] = myArrSum/nRows; // projection profile
+            storFeatureMat[getCol][1] = backToInkPixel;
             //storFeatureMat[getCol][2] = storTopIndex[getCol][2]/nRows;// storing the upper profile; as we are calculating the
 //				storFeatureMat[getCol][3] = storBottomIndex[getCol][2]/nRows; // storing the lower profile;as we are calculating the
             storFeatureMat[getCol][3] = botPixel;
@@ -146,7 +151,7 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img){
             storFeatureMat[getCol][5] = calTransition / 10;
             storFeatureMat[getCol][6] = cgOfRw/nRows;
 
-            cout << storFeatureMat[getCol][2] << " " << botPixel << endl;
+            cout << storFeatureMat[getCol][2] << " " << botPixel << " " << backToInkPixel << endl;
 
 
             //show feature 0 to 6 in the output, to check if values are OK
