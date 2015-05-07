@@ -58,9 +58,6 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img)
     for(unsigned int nXIndex=0; nXIndex<nCols; nXIndex++)
         storFeatureMat[nXIndex] = new double[8]();
 
-	// Initialize storForeGroundCGforCol  matrix
-	int storForeGroundCGforCol[nCols][3];
-
 	if ((!matGrey_img.empty()) && (!matBin_img.empty()))
         {
 		unsigned int foreGroundColCnt = 0;
@@ -81,12 +78,12 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img)
 			unsigned int sumForegroundPixel = 0;
 
 			for (unsigned int getRwPixels = 0;getRwPixels<nRows;getRwPixels++)
-                { // starting from minimum row to maximum row, sum all pixels in between them
-                //this is the test to store the first foreground pixel and it will also used to store the last foreground pixel
+            {   // starting from minimum row to maximum row, sum all pixels in between them
                 //the type of values inside the matrix is unsigned int8_t (0 to 255 value)
                 // gray matrix part
                 sumValueGrayPixel += matGrey_img.at<unsigned int8_t>(getRwPixels,getCol);
                 // binary matrix part
+                //this is the test to store the first foreground pixel and it will also used to store the last foreground pixel
                     if(matBin_img.at<unsigned int8_t>(getRwPixels,getCol) == 255)
                     { // in opencv, fore ground pixels are 255 and back ground pixels are 0
                         if(pixelFlag == 1)
@@ -123,28 +120,31 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img)
             storFeatureMat[getCol][5] = nbForegroundPixel; // number of foreground pixels (feature 6)
             storFeatureMat[getCol][6] = sumForegroundPixel/nbForegroundPixel; // gravity center of the column (feature 7)
 
-            cout << storFeatureMat[getCol][0] << " " << storFeatureMat[getCol][2] << " "
-            << botPixel << " " << backToInkPixel << " " << nbForegroundPixel << " "
-            << storFeatureMat[getCol][4] << " " << storFeatureMat[getCol][6] << endl;
-		}
 
-		//calculation of feature 8
-		for (unsigned int ii = 0;ii<foreGroundColCnt;ii++)
-        {
-            if(ii > 0)
+            //calculation of feature 8 the value is 1 if there is a transition 0 otherwise
+            if(getCol > 0)
             {
-                if(  ((matBin_img.at<unsigned int8_t>(  (storForeGroundCGforCol[ii][0]),(storForeGroundCGforCol[ii][1])  ) == 0) &&
-                        (matBin_img.at<unsigned int8_t>(  (storForeGroundCGforCol[ii-1][0]),(storForeGroundCGforCol[ii-1][1]) == 255)) )  ||
-                        ( (matBin_img.at<unsigned int8_t>( (storForeGroundCGforCol[ii][0]),(storForeGroundCGforCol[ii][1]) ) == 255) &&
-                                (matBin_img.at<unsigned int8_t>( (storForeGroundCGforCol[ii-1][0]),(storForeGroundCGforCol[ii-1][1]) ) == 0) ) ){
-                    storFeatureMat[(storForeGroundCGforCol[ii][1])][7] = 1; // storing the transition of the CG of each foreground pixels in the column
+                if((matBin_img.at<unsigned int8_t>(storFeatureMat[getCol][6],getCol) ==255 && matBin_img.at<unsigned int8_t>(storFeatureMat[getCol-1][6],getCol) == 0)
+                   || (matBin_img.at<unsigned int8_t>(storFeatureMat[getCol][6],getCol) ==0 && matBin_img.at<unsigned int8_t>(storFeatureMat[getCol-1][6],getCol) == 255))
+                {
+                    storFeatureMat[getCol][7] = 1; // if there is a transition between column ans column-1
                 }
                 else
                 {
-                    storFeatureMat[(storForeGroundCGforCol[ii][1])][7] = 0; // if there is no transition but this column have foreground pixel
+                    storFeatureMat[getCol][7] = 0; // if there is no transition
                 }
             }
-        }
+            else
+            {
+                //default value for the column 0, do not pay attention for it
+                storFeatureMat[getCol][7] = 0;
+            }
+
+            cout << storFeatureMat[getCol][0] << " " << storFeatureMat[getCol][2] << " "
+            << botPixel << " " << backToInkPixel << " " << nbForegroundPixel << " "
+            << storFeatureMat[getCol][4] << " " << storFeatureMat[getCol][6]
+            << " " << storFeatureMat[getCol][7] <<endl;
+		}
 
 		// For spline interpolation; get the indexes where storFeatureMat is non zero
 //		std::vector<int> non0Rw,x_inter;
@@ -199,7 +199,6 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img)
 	else{
 		return NULL;  // throw an error saying the image is empty
 	}
-
 }
 double interpolate(int x1, double y1, int x2, double y2, int targetX)
 {
