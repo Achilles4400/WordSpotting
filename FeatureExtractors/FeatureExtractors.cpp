@@ -140,26 +140,7 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img)
                 storFeatureMat[getCol][8] = 0;
             }
 
-            //calculation of, feature 8 the value is 1 if there is a transition 0 otherwise
-            //remplacé par F8, F9
-//            if(getCol > 0)
-//            {
-//                if((matBin_img.at<unsigned int8_t>(storFeatureMat[getCol][6],getCol) ==255 && matBin_img.at<unsigned int8_t>(storFeatureMat[getCol-1][6],getCol) == 0)
-//                   || (matBin_img.at<unsigned int8_t>(storFeatureMat[getCol][6],getCol) ==0 && matBin_img.at<unsigned int8_t>(storFeatureMat[getCol-1][6],getCol) == 255))
-//                {
-//                    storFeatureMat[getCol][7] = 1; // if there is a transition between column ans column-1
-//                }
-//                else
-//                {
-//                    storFeatureMat[getCol][7] = 0; // if there is no transition
-//                }
-//            }
-//            else
-//            {
-//                //default value for the column 0, do not pay attention for it
-//                storFeatureMat[getCol][7] = 0;
-//            }
-
+            //testing the values of the features
             cout << fixed << setprecision(2) << storFeatureMat[getCol][0]
             << " || " << storFeatureMat[getCol][1] << " || "
             << storFeatureMat[getCol][2] << " || " << storFeatureMat[getCol][3] << " || " << storFeatureMat[getCol][4] << " || "
