@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -13,7 +14,7 @@ int main()
     int j;
     FeatureExtractors extractFeatures;
 
-    Mat image = imread("D:\\langage c\\ProjetSD\\WordSpotting\\images\\5744.jpg", CV_LOAD_IMAGE_COLOR);
+    Mat image = imread("D:\\langage c\\ProjetSD\\WordSpotting\\images\\544.jpg", CV_LOAD_IMAGE_COLOR);
     if(!image.data)
 	{
 		cout<<"Image loading problem!"<<endl;
@@ -25,8 +26,6 @@ int main()
 
 	Mat imBinary = imGray > 128;
 
-	//cout << imGray << endl;
-
 	double** mRes;
 
     mRes = extractFeatures.cvCOL_Features(imGray, imBinary);
@@ -34,13 +33,17 @@ int main()
 
     cout << imBinary.size() << endl;
 
-//    for (i=0;i <nCols ;i++){
-//        for (j=0;j<8;j++){
-//            cout << mRes[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
-//
+    ofstream myfile;
+    myfile.open ("features.csv");
+    myfile << "f1;f2;f3;f4;f5;f6;f7;f8;f9;\n";
+
+    for (i=0;i <nCols ;i++){
+        for (j=0;j<9;j++){
+            myfile << mRes[i][j] << ";";
+        }
+        myfile << "\n";
+    }
+    myfile.close();
 
 //	namedWindow("Output", WINDOW_AUTOSIZE);
 //	imshow("Output", imBinary);

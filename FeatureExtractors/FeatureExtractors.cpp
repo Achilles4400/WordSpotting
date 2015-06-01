@@ -17,7 +17,7 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img)
 	// Initialize Feature  matrix
 	double **storFeatureMat = new double*[nCols]();
 	for(unsigned int nXIndex=0; nXIndex<nCols; nXIndex++)
-        storFeatureMat[nXIndex] = new double[8]();
+        storFeatureMat[nXIndex] = new double[9]();
 
     //used for feature 1
 	unsigned int maxValue = 0;
@@ -102,9 +102,43 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img)
             storFeatureMat[getCol][4] = (double)storFeatureMat[getCol][3] - (double)storFeatureMat[getCol][2]; // distance between upper and lower profile (feature 5)
             storFeatureMat[getCol][5] = nbForegroundPixel; // number of foreground pixels (feature 6)
             if (nbForegroundPixel != 0)
-                storFeatureMat[getCol][6] = (double)sumForegroundPixel/nbForegroundPixel; // gravity center of the column (feature 7)
+                storFeatureMat[getCol][6] = sumForegroundPixel/nbForegroundPixel; // gravity center of the column (feature 7)
             else//if no black pixel in the column
                 storFeatureMat[getCol][6] = -1;
+
+            //calculation of feature 8
+            //if gravity center equal -1 (white column)
+            if (storFeatureMat[getCol][6] == -1)
+            {
+                storFeatureMat[getCol][7] = 0;
+            }
+            //if at gravity center index and gravity center index +/-1 equal black white or white black then feature 8 equal 1
+            else if ((matBin_img.at<unsigned int8_t>(storFeatureMat[getCol][6],getCol) == 0 && matBin_img.at<unsigned int8_t>(storFeatureMat[getCol][6]-1,getCol) == 255) ||
+                    (matBin_img.at<unsigned int8_t>(storFeatureMat[getCol][6],getCol) == 0 && matBin_img.at<unsigned int8_t>(storFeatureMat[getCol][6]+1,getCol) == 255) ||
+                    (matBin_img.at<unsigned int8_t>(storFeatureMat[getCol][6],getCol) == 255 && matBin_img.at<unsigned int8_t>(storFeatureMat[getCol][6]-1,getCol) == 0) ||
+                    (matBin_img.at<unsigned int8_t>(storFeatureMat[getCol][6],getCol) == 255 && matBin_img.at<unsigned int8_t>(storFeatureMat[getCol][6]+1,getCol) == 0))
+            {
+                storFeatureMat[getCol][7] = 1;
+            }
+            else
+            {
+                storFeatureMat[getCol][7] = 0;
+            }
+
+            //calculation of feature 9
+            if (getCol != 0)
+            {
+                //if the gravity center for the tow columns exist
+                if (storFeatureMat[getCol][6] != -1 && storFeatureMat[getCol-1][6] !=-1)
+                    storFeatureMat[getCol][8] = storFeatureMat[getCol][6] - storFeatureMat[getCol-1][6];
+                else //if one of gravity center equal -1 (white column) TODO réfléchir sur la valeur a retourner
+                    storFeatureMat[getCol][8] = 0;
+            }
+            else
+            {
+                //feature 9 is equal to 0 for first column
+                storFeatureMat[getCol][8] = 0;
+            }
 
             //calculation of, feature 8 the value is 1 if there is a transition 0 otherwise
             //remplacé par F8, F9
@@ -129,8 +163,8 @@ double** FeatureExtractors::cvCOL_Features(Mat matGrey_img,Mat matBin_img)
             cout << fixed << setprecision(2) << storFeatureMat[getCol][0]
             << " || " << storFeatureMat[getCol][1] << " || "
             << storFeatureMat[getCol][2] << " || " << storFeatureMat[getCol][3] << " || " << storFeatureMat[getCol][4] << " || "
-            << storFeatureMat[getCol][5] << " || " << storFeatureMat[getCol][6]
-            <<endl;
+            << storFeatureMat[getCol][5] << " || " << storFeatureMat[getCol][6] << " || " << storFeatureMat[getCol][7] << " || "
+            << storFeatureMat[getCol][8] <<endl;
 		}
 		return storFeatureMat ;  //refinedStorFearureMat
 	}

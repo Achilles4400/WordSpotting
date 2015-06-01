@@ -222,17 +222,17 @@
 	<opencv2/imgproc/imgproc.hpp>
 	"FeatureExtractors/hdr/FeatureExtractors.h"
 
-1432553151 source:d:\langage c\projetsd\wordspotting\featureextractors\featureextractors.cpp
+1433089103 source:d:\langage c\projetsd\wordspotting\featureextractors\featureextractors.cpp
 	"hdr/FeatureExtractors.h"
-	<math.h>
 
 1432553236 d:\langage c\projetsd\wordspotting\featureextractors\hdr\featureextractors.h
 	<opencv/highgui.h>
 	<iostream>
 	<iomanip>
 
-1432549870 source:d:\langage c\projetsd\wordspotting\main.cpp
+1433089792 source:d:\langage c\projetsd\wordspotting\main.cpp
 	<iostream>
+	<fstream>
 	<opencv2/highgui/highgui.hpp>
 	<opencv2/core/core.hpp>
 	<opencv2/imgproc/imgproc.hpp>
